@@ -34,7 +34,6 @@ public class Enemy : MonoBehaviour
     public UnityEvent OnDeath;
 
     private float distUntilTurn = 0.5f;
-    private float distTravelled = 0;
     [HideInInspector]
     public GridLayout grid;
     [HideInInspector]
