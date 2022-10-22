@@ -27,6 +27,10 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 0.29803923
       objectReference: {fileID: 0}
+    - target: {fileID: 3988321101537411531, guid: 7a7e8ae7c7503c6438bfd5c3a1baac42, type: 3}
+      propertyPath: m_SortingOrder
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6371733001244003090, guid: 7a7e8ae7c7503c6438bfd5c3a1baac42, type: 3}
       propertyPath: m_Name
       value: Blue Ant

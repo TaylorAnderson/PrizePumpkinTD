@@ -9,15 +9,15 @@ public class PlantFlower : PlantBehaviour
     public float gasInterval = 3.0f;
 
     private float gasTimer = 1.5f;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
+    public override void Start() {
+        base.Start();
+        gasInterval /= GameManager.instance.gameSpeedMultiplier;
+    }
     // Update is called once per frame
     override public void Update()
     {
+        base.Update();
         if (placed) {
             gasTimer += Time.deltaTime;
             if (gasTimer > gasInterval) {

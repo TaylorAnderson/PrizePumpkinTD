@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using System.IO;
+using System.ComponentModel;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -25,46 +27,37 @@ public enum SoundType {
 public class Sound {
   public AudioClip sound;
   public SoundType type;
+  
+}
+public static class Bus {
+  public const string SOUND = "Sound";
+  public const string MUSIC = "Music";
 }
 public class SoundPlayer {
   public AudioSource player;
   public bool inUse = false;
+  public string bus;
+  public float volume;
   public SoundPlayer(AudioSource player) {
     this.player = player;
   }
 }
 public class SfxManager : MonoBehaviour {
-  public static SfxManager instance;
-  public Sound[] sounds;
+  public static SfxManager instance; 
   public float volumeMultiplier;
   public float currentVolumeMultiplier;
-
+  public SfxData sfxData;
   private List<SoundPlayer> players = new List<SoundPlayer>();
+  private List<SoundPlayer> musicPlayers = new List<SoundPlayer>();
 
   private List<int> currentlyLoopingSounds = new List<int>();
   private List<SoundType> currentlyPlayingSounds = new List<SoundType>();
   private bool muted = false;
-  private Dictionary<SoundType, AudioClip> soundDictionary = new Dictionary<SoundType, AudioClip>();
-
-
   // Start is called before the first frame update
   void Awake() {
-
-    //Check if instance already exists
-    if (instance == null)
-      instance = this;
-
-    else if (instance != this)
-      Destroy(gameObject);
-
-    DontDestroyOnLoad(gameObject);
+    instance = this;
 
     CreateAudioSources(100);
-
-
-    for (int i = 0; i < sounds.Length; i++) {
-      this.soundDictionary[sounds[i].type] = sounds[i].sound;
-    }
 
     this.currentVolumeMultiplier = volumeMultiplier;
 
@@ -80,14 +73,20 @@ public class SfxManager : MonoBehaviour {
     /*if (InputManager.input.Mute.WasPressed) {
       this.muted = !muted;
     }*/
+    foreach (SoundPlayer player in players) {
+      if (player.inUse) {
+        player.player.volume = player.volume * SaveDataManager.instance.GetData().busVolume[player.bus] * currentVolumeMultiplier;
+      }
+    }
   }
 
   public static int PlaySoundStatic(SoundType soundType, float volume = 1, bool looping = false) {
     return SfxManager.instance.PlaySound(soundType, volume, looping);
   }
 
-  public int PlaySound(SoundType soundType, float volume = 1, bool looping = false) {
+  public int PlaySound(SoundType soundType, float volume = 1, bool looping = false, string bus = Bus.SOUND) {
 
+    var computedVolume = this.currentVolumeMultiplier * volume * SaveDataManager.instance.GetData().busVolume[bus];
     if (soundType == SoundType.NONE) return -1;
     if (!looping) {
       var sameSoundsPlaying = 0;
@@ -98,11 +97,12 @@ public class SfxManager : MonoBehaviour {
     }
     var playerIndex = GetAvailablePlayer();
     var player = this.players[playerIndex];
+    player.bus = bus;
     if (player == null) return -1;
     if (looping) {
-      player.player.clip = this.soundDictionary[soundType];
+      player.player.clip = this.sfxData.GetClip(soundType);
       player.player.loop = true;
-      player.player.volume = this.currentVolumeMultiplier * volume;
+      player.volume = computedVolume;
       player.player.Play();
       currentlyLoopingSounds.Add(playerIndex);
     }
@@ -110,9 +110,9 @@ public class SfxManager : MonoBehaviour {
 
       this.currentlyPlayingSounds.Add(soundType);
 
-      player.player.volume = 1;
-      player.player.PlayOneShot(this.soundDictionary[soundType], volume * this.currentVolumeMultiplier);
-      StartCoroutine(FreeUpSourceAfterSoundEnds(player, this.soundDictionary[soundType], soundType));
+      player.volume = 1;
+      player.player.PlayOneShot(this.sfxData.GetClip(soundType), computedVolume);
+      StartCoroutine(FreeUpSourceAfterSoundEnds(player, this.sfxData.GetClip(soundType), soundType));
     }
 
     return playerIndex;
@@ -128,7 +128,7 @@ public class SfxManager : MonoBehaviour {
     }
     if (playerToken == -1) {
       for (int i = 0; i < players.Count; i++) {
-        if (players[i].player.clip == soundDictionary[soundType]) {
+        if (players[i].player.clip == sfxData.GetClip(soundType)) {
           playerToken = i;
         }
       }
@@ -150,7 +150,6 @@ public class SfxManager : MonoBehaviour {
         players[i].player.Stop();
         players[i].player.volume = 0;
       }
-
     }
   }
 

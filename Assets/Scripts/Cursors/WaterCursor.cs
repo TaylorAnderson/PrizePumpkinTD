@@ -27,16 +27,20 @@ public class WaterCursor : Cursor
         if (ctx.performed) {
             if (GameManager.instance.gold < GameManager.instance.waterCost) {
                 print("not enough money!");
-                return;
-            }
-            if (EventSystem.current.IsPointerOverGameObject()) {
+                ShowBrokeNotification(Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue()));
                 return;
             }
             var pot = GameManager.instance.GetPotUnderMouse();
             if (pot != null) {
                 OnPlantWatered.Invoke();
                 sprite.transform.DORotate(Vector3.forward * 45, 0.2f).OnComplete(() => {sprite.transform.DORotate(Vector3.zero, 0.2f);});
-                pot.GetComponent<PlantPot>().AccelerateGrowth();
+                var potScript = pot.GetComponent<PlantPot>();
+                if (potScript) {
+                    potScript.AccelerateGrowth();
+                }
+                else {
+                    pot.transform.parent.GetComponent<PlantPot>().AccelerateGrowth();
+                }
             }
         }
 

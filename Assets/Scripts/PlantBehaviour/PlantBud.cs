@@ -12,10 +12,6 @@ public class PlantBud : PlantBehaviour
 
     private List<GameObject> enemiesInRange = new List<GameObject>();
 
-    // Start is called before the first frame update
-    void Start()
-    {
-    }
 
     // Update is called once per frame
     public override void Update() {
@@ -46,7 +42,6 @@ public class PlantBud : PlantBehaviour
     }
 
     public override void OnPlaced() {
-        print("geting placed");
         base.OnPlaced();
         GetComponent<CircleCollider2D>().enabled = true;
         basePos = transform.position;

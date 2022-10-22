@@ -27,17 +27,21 @@ public class IceCursor : Cursor
         if (!gameObject.activeSelf) return;
         if (ctx.performed) {
             if (GameManager.instance.gold < GameManager.instance.iceCost) {
+                ShowBrokeNotification(Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue()));
                 print("not enough money!");
-                return;
-            }
-            if (EventSystem.current.IsPointerOverGameObject()) {
                 return;
             }
             var plant = GameManager.instance.GetPotUnderMouse();
             if (plant != null) {
                 OnPlantFrozen.Invoke();
                 sprite.transform.DORotate(Vector3.forward * 45, 0.2f).OnComplete(() => {sprite.transform.DORotate(Vector3.zero, 0.2f);});
-                plant.GetComponent<PlantPot>().FreezeGrowth();
+                var pot = plant.GetComponent<PlantPot>();
+                if (pot) {
+                    pot.FreezeGrowth();
+                }
+                else {
+                    plant.transform.parent.GetComponent<PlantPot>().FreezeGrowth();
+                }
             }
         }
     }

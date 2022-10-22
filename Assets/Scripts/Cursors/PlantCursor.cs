@@ -17,14 +17,14 @@ public class PlantCursor : Cursor
 
     public UnityEvent onPotPlaced;
 
-    private Tilemap tilemap;
+    public Tilemap grassTilemap;
+    public Tilemap dirtTilemap;
 
     [HideInInspector]
-    public TileBase tileUnderMouse;
+    public bool tileUnderMouseValid;
 
     // Start is called before the first frame update
     void Start() {
-        tilemap = grid.GetComponentInChildren<Tilemap>();
         LoadNewPot();
     }
 
@@ -32,7 +32,7 @@ public class PlantCursor : Cursor
     void Update()
     {
         var potPos = GetMousePosInGrid();
-        tileUnderMouse = tilemap.GetTile(grid.WorldToCell(potPos));
+        tileUnderMouseValid = LevelManager.instance.grassTilemap.GetTile(LevelManager.instance.grid.WorldToCell(potPos)) != null && LevelManager.instance.pathTilemap.GetTile(LevelManager.instance.grid.WorldToCell(potPos)) == null;
         if (currentPot) {
             currentPot.transform.position = potPos;
         }
@@ -42,6 +42,7 @@ public class PlantCursor : Cursor
         currentPot = Instantiate(potPrefab);
         currentPot.GetComponent<BoxCollider2D>().enabled = false;
         ChangeSpriteAlpha(currentPot, 0.5f);
+        currentPot.GetComponent<PlantPot>().shadowSprite.enabled = false;
     }
 
 
@@ -49,16 +50,16 @@ public class PlantCursor : Cursor
     public void OnMouseClick(InputAction.CallbackContext ctx) {
         if (!gameObject.activeSelf) return;
         if (ctx.performed) {
+            print("performed");
             if (GameManager.instance.gold < GameManager.instance.plantCost) {
                 print("not enough money!");
+                ShowBrokeNotification(GetMousePosInGrid());
                 return;
             }
-            if (EventSystem.current.IsPointerOverGameObject()) {
-                return;
-            }
-            if (currentPot != null && !GameManager.instance.GetPotUnderMouse() && tileUnderMouse != null && !tileUnderMouse.name.Contains("path")) {
+            if (currentPot != null && !GameManager.instance.GetPotUnderMouse() && tileUnderMouseValid) {
                 onPotPlaced.Invoke();
                 ChangeSpriteAlpha(currentPot, 1.0f);
+                currentPot.GetComponent<PlantPot>().shadowSprite.enabled = true;
                 currentPot.GetComponent<PlantPot>().OnPlaced();
                 GameManager.instance.plants.Add(currentPot);
                 currentPot.GetComponent<BoxCollider2D>().enabled = true;

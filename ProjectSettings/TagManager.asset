@@ -15,7 +15,7 @@ TagManager:
   - Enemy
   - Dirt
   - Grass
-  - 
+  - Plant
   - 
   - 
   - 
@@ -40,4 +40,34 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Grass
+    uniqueID: 1381677665
+    locked: 0
+  - name: Dirt
+    uniqueID: 3098629229
+    locked: 0
+  - name: Ants
+    uniqueID: 1905645551
+    locked: 0
+  - name: Pot
+    uniqueID: 2521688503
+    locked: 0
+  - name: Plants
+    uniqueID: 1556136051
+    locked: 0
+  - name: Anthill
+    uniqueID: 3032414475
+    locked: 0
+  - name: Pumpkin
+    uniqueID: 289988079
+    locked: 0
+  - name: Props
+    uniqueID: 2098885013
+    locked: 0
+  - name: Clouds
+    uniqueID: 430676969
+    locked: 0
+  - name: UI
+    uniqueID: 2203594965
     locked: 0

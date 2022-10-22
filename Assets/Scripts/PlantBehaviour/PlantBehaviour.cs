@@ -13,9 +13,9 @@ public class PlantBehaviour : MonoBehaviour
     
     protected bool canAttack = false;
     // Start is called before the first frame update
-    void Start()
+    public virtual void Start()
     {
-        
+        cooldown /= GameManager.instance.gameSpeedMultiplier;
     }
 
     // Update is called once per frame

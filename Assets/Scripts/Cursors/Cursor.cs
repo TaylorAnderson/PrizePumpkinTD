@@ -6,6 +6,8 @@ using UnityEngine.InputSystem;
 public class Cursor : MonoBehaviour
 {
     public float gridSize = 1;
+    public GameObject notEnoughMoneyNotification;
+    public Canvas worldCanvas;
     // Start is called before the first frame update
     void Start()
     {
@@ -42,5 +44,10 @@ public class Cursor : MonoBehaviour
             }
         }
         return null;
+    }
+    public void ShowBrokeNotification(Vector2 position) {
+        var n = Instantiate(notEnoughMoneyNotification, (Vector3) position, Quaternion.identity);
+        n.transform.parent = worldCanvas.transform;
+        n.transform.localScale = Vector3.one;
     }
 }
